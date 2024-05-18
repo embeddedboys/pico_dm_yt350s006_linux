@@ -1,0 +1,8 @@
+modules.order
+*.cmd
+*.symvers
+*.mod
+*.mod.c
+*.o
+
+tests/test_fb
