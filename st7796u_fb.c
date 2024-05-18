@@ -887,8 +887,6 @@ static int st7796u_remove(struct spi_device *spi)
 
     unregister_framebuffer(par->fbinfo);
     framebuffer_release(par->fbinfo);
-
-    par->tftops->clear(par);
     return 0;
 }
 
