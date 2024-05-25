@@ -481,8 +481,9 @@ static int write_vmem(struct st7796u_par *par, size_t offset, size_t len)
         dev_dbg(par->fbinfo->device, "to_copy=%zu, remain=%zu\n",
                 to_copy, remain - to_copy);
 
-        for (i = 0; i < to_copy; i++)
-            txbuf16[i] = vmem16[i];
+        for (i = 0; i < to_copy; i++) {
+            txbuf16[i] = (vmem16[i] << 8) | (vmem16[i] >> 8);
+        }
 
         /* send batch to device */
         fbtft_write_spi(par, txbuf16, to_copy * 2);
