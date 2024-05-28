@@ -85,6 +85,17 @@
 	pinctrl-0 = <&i2c3m1_xfer>;
 	clock-frequency = <100000>;
 
+	tsc2007@48 {
+		compatible = "ti,tsc2007";
+		reg = <0x48>;
+		interrupt-parent = <&gpio2>;
+		interrupts = <RK_PA7 IRQ_TYPE_EDGE_FALLING>;
+		gpios = <&gpio2 RK_PA7 GPIO_ACTIVE_LOW>;
+		ti,x-plate-ohms = <257>; // x: 256.6 y: 562.2
+		ti,fuzzx = <320>;
+		ti,fuzzy = <480>;
+	};
+
     gt911@14 {
         compatible = "goodix,gt911";
         reg = <0x14>;
@@ -121,7 +132,7 @@
 		#size-cells = <1>;
 		compatible = "sitronix,st7796u";
 		reg = <0>;
-		spi-max-frequency = <75000000>;
+		spi-max-frequency = <100000000>;
 		buswidth = <8>;
 		xres = <480>;
 		yres = <320>;
