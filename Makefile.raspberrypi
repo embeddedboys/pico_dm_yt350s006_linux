@@ -1,0 +1,20 @@
+
+# local kernel build dir
+# KERN_DIR ?= /lib/modules/$(shell uname -r)/build
+
+# users kernel dir
+ARCH := arm
+CROSS_COMPILE := arm-linux-gnueabihf-
+KERN_DIR := /home/developer/raspberrypi/linux
+
+MODULE_NAME = st7796u_fb
+
+all:
+	make ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KERN_DIR) M=`pwd` modules
+clean:
+	make ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KERN_DIR) M=`pwd` modules clean
+
+clena: clean
+
+#CFLAGS_$(MODULE_NAME).o := -DDEBUG
+obj-m += $(MODULE_NAME).o
