@@ -285,10 +285,9 @@ static int fbtft_request_one_gpio(struct st7796u_par *par,
     struct device *dev = par->dev;
     struct device_node *np = dev->of_node;
     int gpio, flags, rc = 0;
-    enum of_gpio_flags of_flags;
 
     if (of_find_property(np, name, NULL)) {
-        gpio = of_get_named_gpio_flags(np, name, index, &of_flags);
+        gpio = of_get_named_gpio(np, name, index);
         if (gpio == -ENOENT)
             return 0;
         if (gpio == -EPROBE_DEFER)
@@ -299,8 +298,6 @@ static int fbtft_request_one_gpio(struct st7796u_par *par,
             return gpio;
         }
 
-        flags = (of_flags & OF_GPIO_ACTIVE_LOW) ? GPIOF_OUT_INIT_LOW :
-                GPIOF_OUT_INIT_HIGH;
         rc = devm_gpio_request_one(dev, gpio, flags,
                                    dev->driver->name);
         if (rc) {
@@ -823,7 +820,7 @@ static int st7796u_probe(struct spi_device *spi)
         break;
     }
 
-    info->flags = FBINFO_FLAG_DEFAULT | FBINFO_VIRTFB;
+    info->flags = FBINFO_VIRTFB;
 
     fbdefio->delay = HZ / display.fps;
     fbdefio->deferred_io = st7796u_deferred_io;
@@ -879,7 +876,7 @@ alloc_fail:
     return 0;
 }
 
-static int st7796u_remove(struct spi_device *spi)
+static void st7796u_remove(struct spi_device *spi)
 {
     struct st7796u_par *par = spi_get_drvdata(spi);
 
@@ -888,7 +885,6 @@ static int st7796u_remove(struct spi_device *spi)
 
     unregister_framebuffer(par->fbinfo);
     framebuffer_release(par->fbinfo);
-    return 0;
 }
 
 static int __maybe_unused st7796u_runtime_suspend(struct device *dev)
