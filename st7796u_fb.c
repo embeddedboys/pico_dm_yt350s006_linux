@@ -774,6 +774,7 @@ static int st7796u_probe(struct spi_device *spi)
     fbops->fb_imageblit = st7796u_fb_imageblit;
     fbops->fb_setcolreg = st7796u_fb_setcolreg;
     fbops->fb_blank     = st7796u_fb_blank;
+    fbops->fb_mmap      = fb_deferred_io_mmap;
 
     snprintf(info->fix.id, sizeof(info->fix.id), "%s", dev->driver->name);
     info->fix.type            =       FB_TYPE_PACKED_PIXELS;
@@ -823,6 +824,7 @@ static int st7796u_probe(struct spi_device *spi)
     info->flags = FBINFO_VIRTFB;
 
     fbdefio->delay = HZ / display.fps;
+    fbdefio->sort_pagereflist = true;
     fbdefio->deferred_io = st7796u_deferred_io;
     fb_deferred_io_init(info);
 
