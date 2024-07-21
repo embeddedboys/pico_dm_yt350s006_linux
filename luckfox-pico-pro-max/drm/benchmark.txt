@@ -1,0 +1,17 @@
+root@luckfox:~# ./fb_rectangle 
+Rectangle frame buffer test bench
+Benchmarking 120x80 size: 40.07 MPixels/second
+
+root@luckfox:~# ./fb_sierpinski 
+Sierpinski frame buffer test bench
+
+Benchmarking     1024 iterations:  1010.23 Frames/second
+Benchmarking     2048 iterations:   716.29 Frames/second
+Benchmarking     4096 iterations:   473.43 Frames/second
+Benchmarking     8192 iterations:   285.14 Frames/second
+Benchmarking    16384 iterations:   162.76 Frames/second
+Benchmarking    32768 iterations:    87.31 Frames/second
+Benchmarking    65536 iterations:    45.89 Frames/second
+Benchmarking   131072 iterations:    24.05 Frames/second
+Benchmarking   262144 iterations:    12.12 Frames/second
+Benchmarking   524288 iterations:     6.28 Frames/second
