@@ -16,7 +16,7 @@ clean:
 
 clena: clean
 
-#CFLAGS_$(MODULE_NAME).o := -DDEBUG
+CFLAGS_st7796u.o := -DTFT_MODEL_YT350S006=0 -DTFT_MODEL_HP35006_D=1
 obj-m += $(MODULE_NAME).o
 $(MODULE_NAME)-y += drm_mipi_dbi.o
 $(MODULE_NAME)-y += st7796u.o
