@@ -78,8 +78,7 @@ static void st7796u_pipe_enable(struct drm_simple_display_pipe *pipe,
 	if (ret)
 		goto out_exit;
 
-	msleep(120);
-
+#if TFT_MODEL_YT350S006
 	mipi_dbi_command(dbi, MIPI_DCS_EXIT_SLEEP_MODE);
 	msleep(120);
 
@@ -117,9 +116,59 @@ static void st7796u_pipe_enable(struct drm_simple_display_pipe *pipe,
 
 	mipi_dbi_command(dbi, 0xf0, 0x3c);
 	mipi_dbi_command(dbi, 0xf0, 0x69);
+
+	mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
+#elif TFT_MODEL_HP35006_D
+	mipi_dbi_command(dbi, 0xf0, 0xc3);
+	mipi_dbi_command(dbi, 0xf0, 0x96);
+
+	switch (dbidev->rotation) {
+	default:
+		addr_mode = 0;
+		break;
+	case 90:
+		addr_mode = ST7796U_MV;
+		break;
+	case 180:
+		addr_mode = ST7796U_MX | ST7796U_MY;
+		break;
+	case 270:
+		addr_mode = ST7796U_MX | ST7796U_MV;
+		break;
+	}
+
+	if (priv->cfg->rgb)
+		addr_mode |= ST7796U_RGB;
+
+	mipi_dbi_command(dbi, MIPI_DCS_SET_ADDRESS_MODE, addr_mode);
+	mipi_dbi_command(dbi, MIPI_DCS_SET_PIXEL_FORMAT, MIPI_DCS_PIXEL_FMT_16BIT);
+	mipi_dbi_command(dbi, 0xb4, 0x01);
+	mipi_dbi_command(dbi, 0xb1, 0x80, 0x01);
+	mipi_dbi_command(dbi, 0xb5, 0x1f, 0x50, 0x00, 0x20);
+	mipi_dbi_command(dbi, 0xb6, 0x8A, 0x07, 0x3b);
+
+	mipi_dbi_command(dbi, 0xc0, 0x80, 0x64);
+	mipi_dbi_command(dbi, 0xc1, 0x13);
+	mipi_dbi_command(dbi, 0xc2, 0xa7);
+	mipi_dbi_command(dbi, 0xc5, 0x09);
+
+	mipi_dbi_command(dbi, 0xe8, 0x40, 0x8a, 0x00, 0x00, 0x29, 0x19, 0xA5, 0x33);
+	mipi_dbi_command(dbi, ST7796U_GAMCTRP1, 0xF0, 0x06, 0x0B, 0x07, 0x06, 0x05, 0x2E, 0x33, 0x47, 0x3A, 0x17, 0x16, 0x2E, 0x31);
+	mipi_dbi_command(dbi, ST7796U_GAMCTRN1, 0xF0, 0x09, 0x0D, 0x09, 0x08, 0x23, 0x2E, 0x33, 0x46, 0x38, 0x13, 0x13, 0x2C, 0x32);
+
+	mipi_dbi_command(dbi, 0xf0, 0x3c);
+	mipi_dbi_command(dbi, 0xf0, 0x69);
+
+	mipi_dbi_command(dbi, 0x35, 0x00);
+	mipi_dbi_command(dbi, MIPI_DCS_EXIT_SLEEP_MODE);
 	msleep(120);
 
 	mipi_dbi_command(dbi, MIPI_DCS_SET_DISPLAY_ON);
+	msleep(50);
+	mipi_dbi_command(dbi, 0x21);
+#else
+	#error "At least one model must be defined"
+#endif
 
 	mipi_dbi_enable_flush(dbidev, crtc_state, plane_state);
 out_exit:
