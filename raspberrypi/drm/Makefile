@@ -1,7 +1,7 @@
 
 ARCH := arm64
 CROSS_COMPILE := aarch64-linux-gnu-
-KERN_DIR := /home/developer/raspberrypi/linux-rpi-6.6.y
+KERN_DIR := /lib/modules/`uname -r`/build
 
 MODULE_NAME = st7796u_drm
 
@@ -11,7 +11,8 @@ clean:
 	make ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KERN_DIR) M=`pwd` modules clean
 
 dtb:
-	dtc -@ -I dts -O dtb -o rk3588-spi4-m0-cs1-st7796u-drm.dtbo rk3588-spi4-m0-cs1-st7796u-drm.dts
+	dtc -@ -I dts -O dtb -o spi0-st7796u-drm.dtbo spi0-st7796u-drm.dts
+	dtc -@ -I dts -O dtb -o i2c1-gt911.dtbo i2c1-gt911.dts
 
 clena: clean
 
