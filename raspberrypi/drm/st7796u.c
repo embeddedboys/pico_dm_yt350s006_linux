@@ -45,7 +45,7 @@
 #define ST7796U_MH	BIT(2)
 
 struct st7796u_cfg {
-	const struct drm_display_mode mode;
+	struct drm_display_mode mode;
 	unsigned int left_offset;
 	unsigned int top_offset;
 	unsigned int write_only:1;
@@ -54,7 +54,7 @@ struct st7796u_cfg {
 
 struct st7796u_priv {
 	struct mipi_dbi_dev dbidev;	/* Must be first for .release() */
-	const struct st7796u_cfg *cfg;
+	struct st7796u_cfg *cfg;
 	struct gpio_desc *led;
 };
 
@@ -171,15 +171,16 @@ static void st7796u_pipe_enable(struct drm_simple_display_pipe *pipe,
 #endif
 
 	mipi_dbi_enable_flush(dbidev, crtc_state, plane_state);
+	gpiod_set_value_cansleep(priv->led, 1);
 out_exit:
 	drm_dev_exit(idx);
 }
 
-static const struct drm_simple_display_pipe_funcs st7796u_pipe_funcs = {
+static struct drm_simple_display_pipe_funcs st7796u_pipe_funcs = {
 	DRM_MIPI_DBI_SIMPLE_DISPLAY_PIPE_FUNCS(st7796u_pipe_enable),
 };
 
-static const struct st7796u_cfg yt350s006_cfg = {
+static struct st7796u_cfg yt350s006_cfg = {
 	.mode		= { DRM_SIMPLE_MODE(320, 480, 49, 73) },
 	/* Cannot read from Adafruit 1.8" display via SPI */
 	.write_only	= false,
@@ -188,7 +189,7 @@ static const struct st7796u_cfg yt350s006_cfg = {
 
 DEFINE_DRM_GEM_DMA_FOPS(st7796u_fops);
 
-static const struct drm_driver st7796u_driver = {
+static struct drm_driver st7796u_driver = {
 	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
 	.fops			= &st7796u_fops,
 	DRM_GEM_DMA_DRIVER_OPS_VMAP,
@@ -212,10 +213,41 @@ static const struct spi_device_id st7796u_id[] = {
 };
 MODULE_DEVICE_TABLE(spi, st7796u_id);
 
+static int panel_mipi_dbi_get_mode(struct mipi_dbi_dev *dbidev, struct drm_display_mode *mode)
+{
+	struct device *dev = dbidev->drm.dev;
+	u16 hback_porch, vback_porch;
+
+	mode->type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
+
+	hback_porch = mode->htotal - mode->hsync_end;
+	vback_porch = mode->vtotal - mode->vsync_end;
+
+	/*
+	 * Make sure width and height are set and that only back porch and
+	 * pixelclock are set in the other timing values. Also check that
+	 * width and height don't exceed the 16-bit value specified by MIPI DCS.
+	 */
+	if (!mode->hdisplay || !mode->vdisplay || mode->flags ||
+	    mode->hsync_end > mode->hdisplay || (hback_porch + mode->hdisplay) > 0xffff ||
+	    mode->vsync_end > mode->vdisplay || (vback_porch + mode->vdisplay) > 0xffff) {
+		dev_err(dev, "%pOF: panel-timing out of bounds\n", dev->of_node);
+		return -EINVAL;
+	}
+
+	/* The driver doesn't use the pixel clock but it is mandatory so fake one if not set */
+	mode->clock = mode->htotal * mode->vtotal * 60 / 1000;
+
+	dbidev->top_offset = vback_porch;
+	dbidev->left_offset = hback_porch;
+
+	return 0;
+}
+
 static int st7796u_probe(struct spi_device *spi)
 {
 	struct device *dev = &spi->dev;
-	const struct st7796u_cfg *cfg;
+	struct st7796u_cfg *cfg;
 	struct mipi_dbi_dev *dbidev;
 	struct st7796u_priv *priv;
 	struct drm_device *drm;
@@ -239,6 +271,10 @@ static int st7796u_probe(struct spi_device *spi)
 	dbi = &dbidev->dbi;
 	drm = &dbidev->drm;
 
+	ret = panel_mipi_dbi_get_mode(dbidev, &cfg->mode);
+	if (ret)
+		return ret;
+
 	dbi->reset = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
 	if (IS_ERR(dbi->reset))
 		return dev_err_probe(dev, PTR_ERR(dbi->reset), "Failed to get GPIO 'reset'\n");
@@ -254,7 +290,6 @@ static int st7796u_probe(struct spi_device *spi)
 	priv->led = devm_gpiod_get(dev, "led", GPIOD_OUT_LOW);
 	if (IS_ERR(priv->led))
 		return dev_err_probe(dev, PTR_ERR(priv->led), "Failed to get GPIO 'led'\n");
-	gpiod_set_value_cansleep(priv->led, 1);
 
 	device_property_read_u32(dev, "rotation", &rotation);
 
