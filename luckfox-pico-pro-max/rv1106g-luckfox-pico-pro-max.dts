@@ -12,6 +12,13 @@
 / {
 	model = "Luckfox Pico Max";
 	compatible = "rockchip,rv1103g-38x38-ipc-v10", "rockchip,rv1106";
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm5 0 25000 0>;
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <255>;
+	};
 };
 
 &pinctrl {
@@ -37,7 +44,7 @@
 
 /**********SDMMC**********/
 &sdmmc {
-	max-frequency = <200000000>;
+	max-frequency = <50000000>;
 	no-sdio;
 	no-mmc;
 	bus-width = <4>;
@@ -83,34 +90,29 @@
 &i2c3 {
 	status = "okay";
 	pinctrl-0 = <&i2c3m1_xfer>;
-	clock-frequency = <100000>;
+	clock-frequency = <400000>;
 
 	tsc2007@48 {
 		compatible = "ti,tsc2007";
 		reg = <0x48>;
 		interrupt-parent = <&gpio2>;
-		interrupts = <RK_PA7 IRQ_TYPE_EDGE_FALLING>;
-		gpios = <&gpio2 RK_PA7 GPIO_ACTIVE_LOW>;
+		interrupts = <RK_PB1 IRQ_TYPE_EDGE_FALLING>;
+		gpios = <&gpio2 RK_PB1 GPIO_ACTIVE_LOW>;
 		ti,x-plate-ohms = <257>; // x: 256.6 y: 562.2
 		ti,fuzzx = <320>;
 		ti,fuzzy = <480>;
 	};
 
-    gt911@14 {
-        compatible = "goodix,gt911";
-        reg = <0x14>;
+	gt911@14 {
+		compatible = "goodix,gt911";
+		reg = <0x14>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&goodix_ts_pins>;
-        interrupt-parent = <&gpio2>;
-        interrupts = <RK_PA7 IRQ_TYPE_EDGE_FALLING>;
-        irq-gpios = <&gpio2 RK_PA7 GPIO_ACTIVE_HIGH>;
-        reset-gpios = <&gpio2 RK_PA6 GPIO_ACTIVE_HIGH>;
-    };
-};
-&i2c4 {
-	status = "okay";
-	pinctrl-0 = <&i2c4m0_xfer>;
-	clock-frequency = <100000>;
+		interrupt-parent = <&gpio2>;
+		interrupts = <RK_PA7 IRQ_TYPE_EDGE_FALLING>;
+		irq-gpios = <&gpio2 RK_PA7 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio2 RK_PA6 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 // /**********SPI**********/
@@ -127,21 +129,20 @@
 	// 	spi-max-frequency = <50000000>;
 	// 	reg = <0>;
 	// };
+
 	tft: st7796u@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "sitronix,st7796u";
+		// compatible = "yaoyuanhong,yt350s006";
+		compatible = "yaoyuanhong,hp35006";
 		reg = <0>;
 		spi-max-frequency = <100000000>;
-		buswidth = <8>;
-		xres = <480>;
-		yres = <320>;
 		spi-cpol;
 		spi-cpha;
-		blk-gpios = <&gpio2 RK_PB0 GPIO_ACTIVE_HIGH>;
 		dc-gpios = <&gpio1 RK_PD0 GPIO_ACTIVE_HIGH>;
 		reset-gpios = <&gpio1 RK_PD1 GPIO_ACTIVE_HIGH>;
-		debug = <1>;
+		rotation = <90>;
+		backlight = <&backlight>;
 		status = "okay";
 	};
 };
