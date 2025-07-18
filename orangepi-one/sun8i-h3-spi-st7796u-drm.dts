@@ -1,0 +1,25 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+        compatible = "allwinner,sun8i-h3";
+
+        fragment@0 {
+                target = <&spi0>;
+                __overlay__ {
+                        status = "okay";
+
+                        tft: st7796u@0 {
+                                #address-cells = <1>;
+                                #size-cells = <1>;
+                                compatible = "panel-mipi-dbi-spi";
+                                reg = <0>;
+                                width = <480>;
+                                height = <320>;
+                                width-mm = <55>;
+                                height-mm = <84>;
+                                status = "okay";
+                        };
+                };
+        };
+};
