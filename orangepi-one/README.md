@@ -15,7 +15,27 @@ lists of compatible hardware:
 
 ## Get started
 
-... nothing yet.
+clone this repo first
+
+```bash
+git clone https://github.com/embeddedboys/pico_dm_yt350s006_linux.git
+cd orangepi-one
+```
+
+build and install dt overlay, firmware (ignore warnings)
+
+```bash
+make
+make install
+```
+
+load panel-mipi-dbi driver and enable backlight
+```bash
+modprobe panel-mipi-dbi
+echo 110 > /sys/class/gpio/export
+echo out > /sys/class/gpio/gpio110/direction
+echo 1 > /sys/class/gpio/gpio110/value
+```
 
 ## References
 
@@ -25,8 +45,7 @@ https://github.com/embeddedboys/rpi_dm_yt350s006_software
 
 ## More
 
-Error log during development:
-
+Some useful log during development:
 
 ```c
 [    3.344267] panel-mipi-dbi-spi spi0.0: /soc/spi@1c68000/st7796u@0: failed to get panel-timing (error=-2)
