@@ -2,24 +2,57 @@
 /plugin/;
 
 / {
-        compatible = "allwinner,sun8i-h3";
+	compatible = "allwinner,sun8i-h3";
 
-        fragment@0 {
-                target = <&spi0>;
-                __overlay__ {
-                        status = "okay";
+	fragment@0 {
+		target = <&pio>;
+		__overlay__ {
+			tft_pins: tft_pins {
+				pins = "PA2", "PA3";
+				function = "gpio_out";
+			};
+		};
+	};
 
-                        tft: st7796u@0 {
-                                #address-cells = <1>;
-                                #size-cells = <1>;
-                                compatible = "panel-mipi-dbi-spi";
-                                reg = <0>;
-                                width = <480>;
-                                height = <320>;
-                                width-mm = <55>;
-                                height-mm = <84>;
-                                status = "okay";
-                        };
-                };
-        };
+	fragment@1 {
+		target = <&spi0>;
+		__overlay__ {
+			status = "okay";
+
+			tft: st7796u@0 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				pinctrl-names = "default";
+				pinctrl-0 = <&tft_pins>;
+
+				compatible = "rpi-dm-hp35006", "panel-mipi-dbi-spi";
+
+				spi-max-frequency = <100000000>;
+				reg = <0>;
+
+				width-mm = <55>;
+				height-mm = <84>;
+
+				reset-gpios = <&pio 0 2 0>;
+				dc-gpios = <&pio 0 3 0>;
+				write-only;
+
+				status = "okay";
+				
+				panel-timing {
+					hactive = <480>;
+					vactive = <320>;
+					hback-porch = <0>;
+					vback-porch = <0>;
+
+					clock-frequency = <0>;
+					hfront-porch = <0>;
+					hsync-len = <0>;
+					vfront-porch = <0>;
+					vsync-len = <0>;
+				};
+			};
+		};
+	};
 };
