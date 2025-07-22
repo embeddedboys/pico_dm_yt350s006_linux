@@ -5,16 +5,39 @@
 	compatible = "allwinner,sun8i-h3";
 
 	fragment@0 {
+		target-path = "/";
+		__overlay__ {
+			bl_leds {
+				compatible = "gpio-leds";
+
+				pinctrl-names = "default";
+				pinctrl-0 = <&bl_pins>;
+
+				bl_led0 {
+					label = "display:backlight";
+					gpios = <&pio 3 14 0>;
+					default-state = "on";
+				};
+			};
+		};
+	};
+
+	fragment@1 {
 		target = <&pio>;
 		__overlay__ {
 			tft_pins: tft_pins {
 				pins = "PA2", "PA3";
 				function = "gpio_out";
 			};
+
+			bl_pins: bl_pins {
+				pins = "PD14";
+				function = "gpio_out";
+			};
 		};
 	};
 
-	fragment@1 {
+	fragment@2 {
 		target = <&spi0>;
 		__overlay__ {
 			status = "okay";
@@ -39,7 +62,7 @@
 				write-only;
 
 				status = "okay";
-				
+
 				panel-timing {
 					hactive = <480>;
 					vactive = <320>;
