@@ -49,7 +49,7 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&tft_pins>;
 
-				compatible = "rpi-dm-hp35006", "panel-mipi-dbi-spi";
+				compatible = "panel-mipi-dbi-spi";
 
 				spi-max-frequency = <100000000>;
 				reg = <0>;
