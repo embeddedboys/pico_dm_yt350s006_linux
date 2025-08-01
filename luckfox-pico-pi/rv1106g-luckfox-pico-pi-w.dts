@@ -175,9 +175,36 @@
 
 		bl_pins: bl_pins {
 			rockchip,pins =
-			/* tft_blk */
+				/* tft_blk */
 				<1 RK_PC6 RK_FUNC_GPIO &pcfg_pull_down>;
 		};
+
+		ts_pins: ts_pins {
+			rockchip,pins =
+				/* ts_irq */
+				<2 RK_PA7 RK_FUNC_GPIO &pcfg_pull_none>,
+				/* ts_rst */
+				<2 RK_PA6 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+};
+/**********I2C**********/
+&i2c2 {
+	status = "okay";
+
+	touchscreen: gt911@0x5d {
+		status = "okay";
+
+		compatible = "goodix,gt911";
+		reg = <0x5d>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&ts_pins>;
+		interrupt-parent = <&gpio2>;
+		interrupts = <RK_PA7 IRQ_TYPE_EDGE_FALLING>;
+		irq-gpios = <&gpio2 RK_PA7 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio2 RK_PA6 GPIO_ACTIVE_HIGH>;
+		touchscreen-swapped-x-y;
+		touchscreen-inverted-x;
 	};
 };
 
