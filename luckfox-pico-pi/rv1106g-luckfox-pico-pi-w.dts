@@ -33,6 +33,19 @@
 		BT,wake_host_irq = <&gpio1 RK_PA2 GPIO_ACTIVE_HIGH>;
 		status = "okay";
 	};
+
+	bl_leds {
+		compatible = "gpio-leds";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&bl_pins>;
+
+		bl_led0 {
+			label = "disaplay:backlight:led0";
+			gpios = <&gpio1 RK_PC6 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+	};
 };
 
 /**********CRU**********/
@@ -158,6 +171,12 @@
 				<1 RK_PD1 RK_FUNC_GPIO &pcfg_pull_none>,
 				/* tft_reset */
 				<1 RK_PD3 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		bl_pins: bl_pins {
+			rockchip,pins =
+			/* tft_blk */
+				<1 RK_PC6 RK_FUNC_GPIO &pcfg_pull_down>;
 		};
 	};
 };
