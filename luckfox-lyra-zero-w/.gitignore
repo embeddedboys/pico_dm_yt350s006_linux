@@ -1,0 +1,8 @@
+*.bin
+*.dtbo
+
+.cache
+compile_commands.json
+*.ko
+
+!prebuilt/*

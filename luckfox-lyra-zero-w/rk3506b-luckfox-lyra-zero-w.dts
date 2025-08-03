@@ -1,0 +1,148 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2024 Rockchip Electronics Co., Ltd.
+ */
+
+/dts-v1/;
+
+#include "rk3506-luckfox-lyra-ultra.dtsi"
+
+/ {
+	model = "Luckfox Lyra Zero W";
+	compatible = "rockchip,rk3506g-demo-display-control", "rockchip,rk3506";
+
+	chosen {
+		bootargs = "earlycon=uart8250,mmio32,0xff0a0000 console=tty1 console=ttyFIQ0 root=ubi0:rootfs ubi.mtd=2 rootfstype=ubifs rootwait snd_aloop.index=7 snd_aloop.use_raw_jiffies=1";
+	};
+
+	wireless_bluetooth: wireless-bluetooth {
+		compatible = "bluetooth-platdata";
+		BT,power_gpio = <&gpio1 RK_PC5 GPIO_ACTIVE_HIGH>;
+		status = "okay";
+	};
+};
+
+/**********media**********/
+&mmc {
+	/* For SDMMC */
+	max-frequency = <52000000>;
+	bus-width = <4>;
+	no-sdio;
+	no-mmc;
+	cap-mmc-highspeed;
+	cap-sd-highspeed;
+	cd-gpios = <&gpio1 RK_PB6 GPIO_ACTIVE_LOW>; //det
+	disable-wp;
+	//sd-uhs-sdr104;
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc_clk_pins &sdmmc_cmd_pins &sdmmc_bus4_pins &sdmmc_det &sdmmc_pwren>;
+	vqmmc-supply = <&vcc_3v3>;
+	vmmc-supply = <&vcc_3v3>;
+	status = "okay";
+};
+
+&fspi {
+	status = "okay";
+
+	flash@0 {
+		compatible = "spi-nand";
+		reg = <0>;
+		spi-max-frequency = <80000000>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <1>;
+	};
+};
+
+/**********display**********/
+&cma {
+	size = <0x2000000>;
+};
+
+&dsi {
+	status = "disabled";
+};
+
+&dsi_dphy {
+	status = "disabled";
+};
+
+&dsi_in_vop {
+	status = "disabled";
+};
+
+&route_dsi {
+	status = "disabled";
+};
+
+&dsi_panel {
+	status = "disabled";
+};
+
+/**********ethernet**********/
+&gmac1 {
+	status = "disabled";
+};
+
+/**********usb**********/
+&usb20_otg0 {
+	dr_mode = "peripheral";
+	status = "okay";
+};
+
+&usb20_otg1 {
+	dr_mode = "host";
+	status = "okay";
+};
+
+&pinctrl {
+	tft {
+		tft_pins: tft-pins {
+			rockchip,pins =
+				<0 RK_PB3 RK_FUNC_GPIO &pcfg_pull_none>,
+				<0 RK_PA5 RK_FUNC_GPIO &pcfg_pull_none>,
+				<0 RK_PB6 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+};
+
+&spi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&rm_io6_spi0_mosi &rm_io7_spi0_miso &rm_io8_spi0_clk &rm_io10_spi0_csn0>;
+
+	status = "okay";
+
+	panel-mipi-dbi@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&tft_pins>;
+
+		compatible = "panel-mipi-dbi-spi";
+
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+
+		width-mm = <55>;
+		height-mm = <84>;
+
+		reset-gpios = <&gpio0 RK_PB3 GPIO_ACTIVE_HIGH>;
+		dc-gpios = <&gpio0 RK_PA5 GPIO_ACTIVE_HIGH>;
+		write-only;
+
+		status = "okay";
+
+		panel-timing {
+			hactive = <480>;
+			vactive = <320>;
+			hback-porch = <0>;
+			vback-porch = <0>;
+
+			clock-frequency = <0>;
+			hfront-porch = <0>;
+			hsync-len = <0>;
+			vfront-porch = <0>;
+			vsync-len = <0>;
+		};
+	};
+};
