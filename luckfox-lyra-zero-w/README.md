@@ -21,10 +21,10 @@ Now you can see the console appears on the screen
 
 At device side, change to root user then:
 ```bash
-mkdir -p /lib/modules/$(uname -r)
-cp /root/panel-mipi-dbi.ko /lib/modules/$(uname -r)
+mkdir -p /lib/modules/$(uname -r)/kernel/drivers/gpu/drm/tiny/
+cp /root/panel-mipi-dbi.ko /lib/modules/$(uname -r)/kernel/drivers/gpu/drm/tiny/
 
-echo "panel-mipi-dbi" > /etc/modules-load.d/modules.conf
+echo "kernel/drivers/gpu/drm/tiny/panel-mipi-dbi.ko:" >> /lib/modules/$(uname -r)/modules.dep
 reboot
 ```
 
@@ -33,14 +33,18 @@ reboot
 #### 1. build and copy the new boot.img to the device
 
 ```bash
-cp rv1106g-luckfox-pico-pi-w.dts ${HOME}/luckfox/pico/sysdrv/source/kernel/arch/arm/boot/dts/rv1106g-luckfox-pico-pi-w.dts
+cp rk3506b-luckfox-lyra-zero-w.dts ${HOME}/luckfox/lyra/kernel-6.1/arch/arm/boot/dts/rk3506b-luckfox-lyra-zero-w.dts
 ./build.sh kernel
 adb push kernel-6.1/zboot.img /root
 ```
 
-come to the device side and run:
+come to the device side and run this if boot from SPI-NAND:
 ```bash
 dd if=/root/zboot.img of=/dev/mtdblock1 bs=1M && reboot
+```
+or this one if boot from SD card:
+```bash
+
 ```
 
 build driver and firmware, then copy to the device:
