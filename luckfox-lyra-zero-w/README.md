@@ -11,7 +11,8 @@
 
 ```bash
 adb push prebuilt/* /root/
-adb wait-for-device && adb shell 'dd if=/root/boot.img of=/dev/mmcblk0p4 bs=1M && reboot'
+adb wait-for-device && adb shell 'dd if=/root/zboot.img of=/dev/mtdblock1 bs=1M && reboot'
+adb wait-for-device && adb shell 'cp /root/panel-mipi-dbi-spi.bin /lib/firmware/'
 adb wait-for-device && adb shell 'insmod /root/panel-mipi-dbi.ko'
 ```
 
@@ -34,6 +35,7 @@ reboot
 
 ```bash
 cp rk3506b-luckfox-lyra-zero-w.dts ${HOME}/luckfox/lyra/kernel-6.1/arch/arm/boot/dts/rk3506b-luckfox-lyra-zero-w.dts
+cp rk3506_luckfox_defconfig ${HOME}/luckfox/lyra/kernel-6.1/arch/arm/configs/rk3506_luckfox_defconfig
 ./build.sh kernel
 adb push kernel-6.1/zboot.img /root
 ```

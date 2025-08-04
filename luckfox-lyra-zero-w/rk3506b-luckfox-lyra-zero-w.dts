@@ -94,13 +94,20 @@
 	status = "okay";
 };
 
+&backlight {
+	status = "okay";
+};
+
+&pwm0_4ch_2 {
+	pinctrl-0 = <&rm_io14_pwm0_ch2>;
+};
+
 &pinctrl {
 	tft {
 		tft_pins: tft-pins {
 			rockchip,pins =
 				<0 RK_PB3 RK_FUNC_GPIO &pcfg_pull_none>,
-				<0 RK_PA5 RK_FUNC_GPIO &pcfg_pull_none>,
-				<0 RK_PB6 RK_FUNC_GPIO &pcfg_pull_none>;
+				<0 RK_PA5 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 };
@@ -129,6 +136,8 @@
 		reset-gpios = <&gpio0 RK_PB3 GPIO_ACTIVE_HIGH>;
 		dc-gpios = <&gpio0 RK_PA5 GPIO_ACTIVE_HIGH>;
 		write-only;
+
+		backlight = <&backlight>;
 
 		status = "okay";
 
